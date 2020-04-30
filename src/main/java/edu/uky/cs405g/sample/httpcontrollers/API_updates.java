@@ -176,8 +176,20 @@ public class API {
 	@Path("/suggestions")
 	@Procedures(MediaType.APPLICATION_JSON)
 	public Response suggestions(){
-
+	String responseString = "{\"status_code\":0, "+"\"error\": \"no suggestions\"}";
+	try{
+	Map<String, String> teamMap = Launcher.dbEngine.sugUsers();
+	responseString = "{\status_code\":3}" "+" Launcher.gson.toJson(teamMap);
 	}
+	catch (Exception ex){
+	StringWriter sw = new StringWriter();
+	ex.printStackTrace(new PrintWriter(sw));
+    String exceptionAsString = sw.toString();
+    ex.printStackTrace();
+    return Response.status(500).entity(exceptionAsString).build();
+	}
+	return Response.ok(responseString).header("Access-Control-Allow-Origin", "*").build();
+	}//suggestions
 
 	// Input: curl -d '{"handle":"@cooldude42", "password":"mysecret!", "chapter":"I ate at Mario's!", "url":"http://imagesite.dne/marios.jpg"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/poststory (Links to an external site.)
 	// Output: {"status":"1"}
