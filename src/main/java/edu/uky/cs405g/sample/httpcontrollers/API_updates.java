@@ -142,9 +142,9 @@ public class API {
 	// Output: {"status":"4"} // positive number is the Identity.idnum created.
 	// Output: {"status":"-2", "error":"SQL Constraint Exception"}. [EDIT 04/14]
 // etc.
-	@Get
+	@GET
 	@Path("/createuser")
-	@Procedures(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
 	public Response createuser(){
 
 	}
@@ -156,9 +156,9 @@ public class API {
     // 2 = Identity.idnum
     // Output: {"status":"1", "handle":"@carlos", "fullname":"Carlos Mize", "location":"Kentucky", "email":carlos@notgmail.com", "bdate":"1970-01-26","joined":"2020-04-01"}
     // Output: {}. // no match found, could be blocked, user doesn't know.
-	@Get
+	@GET
 	@Path("/seeuser")
-	@Procedures(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
 	public Response seeuser(){
 
 	}
@@ -172,9 +172,9 @@ public class API {
 	// Output, status > 0 is the number of suggested people returned
 	// Output: {"status":"3", "idnums":"1,2,4", "handles":"@paul,@carlos","@fake"}
 	// Output: {"status":"0", "error":"no suggestions"}
-	@Get
+	@GET
 	@Path("/suggestions")
-	@Procedures(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
 	public Response suggestions(){
 
 	}
@@ -182,9 +182,9 @@ public class API {
 	// Input: curl -d '{"handle":"@cooldude42", "password":"mysecret!", "chapter":"I ate at Mario's!", "url":"http://imagesite.dne/marios.jpg"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/poststory (Links to an external site.)
 	// Output: {"status":"1"}
 	// Output: {"status":"0", "error":"invalid expires date"}
-	@Get
+	@GET
 	@Path("/poststory")
-	@Procedures(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
 	public Response poststory(){
 
 	}
@@ -206,9 +206,9 @@ public class API {
 	// Output: {"status":"0", "error":"blocked"}
 	// Output: {"status":"0", "error":"story not found"}
 	// etc.
-	@Get
+	@GET
 	@Path("/reprint")
-	@Procedures(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
 	public Response reprint(){
 
 	}
@@ -220,9 +220,9 @@ public class API {
 	// Output: {"status":"0", "error":"blocked"}
 	// DNE
 	// etc.
-	@Get
+	@GET
 	@Path("/follow")
-	@Procedures(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
 	public Response follow(){
 
 	}
@@ -234,9 +234,9 @@ public class API {
 	// Output: {"status":"1"}
 	// Output: {"status":"0", "error":"not currently followed"}
 	// etc.
-	@Get
+	@GET
 	@Path("/unfollow")
-	@Procedures(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
 	public Response unfollow(){
 
 	}
@@ -247,9 +247,9 @@ public class API {
 	// 2 = Identity.idnum
 	// Output: {"status":"1"}
 	// Output: {"status":"0", "error":"DNE"}
-	@Get
+	@GET
 	@Path("/block")
-	@Procedures(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
 	public Response block(){
 
 	}
@@ -277,9 +277,9 @@ public class API {
 	// Output: {"0":"{\"type\":\"story\",\"author\":\"@cooldude44\",\"sidnum\":\"14\",\"chapter\":\"Just some set math, SQL is super fun!\",\"posted\":\"2020-04-16 15:37:48\"}","1":"{\"type\":\"reprint\",\"author\":\"@cooldude44\",\"sidnum\":\"15\",\"chapter\":\"JSON objects are fun and useful!\",\"posted\":\"2020-04-15 10:37:44\"}","status":"2"}
 	// Output: {"status":"0"}
 	// etc.
-	@Get
+	@GET
 	@Path("/timeline")
-	@Procedures(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
 	public Response timeline(){
 
 	}
