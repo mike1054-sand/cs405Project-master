@@ -244,8 +244,38 @@ public class API {
 	@GET
 	@Path("/poststory")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response poststory(){
+	public Response poststory(InputStream InputData){
+        String responseString = "{\"status_code\":\"0\"}";
+        StringBuilder crunchifyBuilder = new StringBuilder();
+        try {
+            BufferedReader in = new BufferedReader(new InputStreamReader(InputData));
+            String line = null;
+            while ((line = in.readLine()) != null) {
+                crunchifyBuilder.append(line);
+            }
+            String jsonString = crunchifyBuilder.toString();
 
+            Map<String, String> userMap = gson.fromJson(jsonString, mapType);
+            String handle = userMap.get("handle");
+            String password = userMap.get("password");
+            String chapter = userMap.get("chapter");
+            String url = userMap.get("url");
+            java.time.LocalDateTime now = java.time.LocalDateTime.now();
+            String timestamp = now.toString();
+            java.time.LocalDateTime tomorrow = java.time.LocalDateTime.now();
+            tomorrow = tomorrow.plusHours(24);
+            String expired = tomorrow.toString();
+            Map<String, String> myMap = Launcher.dbEngine.poststory(handle, password, chapter, url, expired, timestamp);
+            responseString = "{\"status\":\"1\"}";
+        } catch (Exception ex) {
+            StringWriter sw = new StringWriter();
+            ex.printStackTrace(new PrintWriter(sw));
+            String exceptionAsString = sw.toString();
+            ex.printStackTrace();
+            return Response.status(500).entity(exceptionAsString).build();
+        }
+        return Response.ok(responseString)
+                .header("Access-Control-Allow-Origin", "*").build();
 	}
 
 
