@@ -163,7 +163,9 @@ public class API {
             String location = userMap.get("location");
             String xmail = userMap.get("xmail");
             String bdate = userMap.get("bdate");
-            Map<String, String> myMap = Launcher.dbEngine.createuser(handle, password, fullname, location, xmail, bdate);
+            java.time.LocalDate now = java.time.LocalDate.now();
+            String joined = now.toString();
+            Map<String, String> myMap = Launcher.dbEngine.createuser(handle, password, fullname, location, xmail, bdate, joined);
             String idnum = myMap.get("idnum");
             responseString = "{\"status\":\""+idnum+"\"}";
         } catch (Exception ex) {
@@ -187,8 +189,37 @@ public class API {
 	@GET
 	@Path("/seeuser")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response seeuser(){
+	public Response seeuser(InputStream InputData) {
+        String responseString = "{\"status_code\":0}";
+        StringBuilder crunchifyBuilder = new StringBuilder();
+        try {
+            BufferedReader in = new BufferedReader(new InputStreamReader(InputData));
+            String line = null;
+            while ((line = in.readLine()) != null) {
+                crunchifyBuilder.append(line);
+            }
+            String jsonString = crunchifyBuilder.toString();
 
+            Map<String, String> userMap = gson.fromJson(jsonString, mapType);
+            String handle = userMap.get("handle");
+            String password = userMap.get("password");
+            Map<String, String> myMap = Launcher.dbEngine.seeUser(handle, password);
+            handle = myMap.get("handle");
+            String fullname = myMap.get("fullname");
+            String location = myMap.get("location");
+            String xmail = myMap.get("xmail");
+            String bdate = myMap.get("bdate");
+            String joined = myMap.get("joined");
+            responseString = "{\"status\":\"1\", \"handle\":\"" + handle + ", \"fullname\":\"" + fullname + ", \"location\":\"" + location + "\", \"email\":\"" + xmail + "\", \"bdate\":\"" + bdate + "\", \"joined\":\"" + joined + "\"}";
+        } catch (Exception ex) {
+            StringWriter sw = new StringWriter();
+            ex.printStackTrace(new PrintWriter(sw));
+            String exceptionAsString = sw.toString();
+            ex.printStackTrace();
+            return Response.status(500).entity(exceptionAsString).build();
+        }
+        return Response.ok(responseString)
+                .header("Access-Control-Allow-Origin", "*").build();
 	}
 
 	// Query should be give idnum, handle of at most 4 (Hint: LIMIT 4)
