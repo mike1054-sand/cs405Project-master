@@ -220,11 +220,34 @@ public class API {
 	// Output: {"status":"0", "error":"blocked"}
 	// DNE
 	// etc.
-	@Get
+        @Get
 	@Path("/follow")
 	@Procedures(MediaType.APPLICATION_JSON)
-	public Response follow(){
+	public Response follow(InputStream InputData){
+		String responseString = "{\"status_code\":0, , "+"\"error\": \"blocked\"}";
+		StringBuilder crunchifyBuilder = crunchifyBuilder.toString();
+		try{
+		BufferedReader in new BufferedReader(new InputStreamReader(InputData));
+		String line = null;
+		while ((line=in.readLine()) != null){
+			crunchifyBuilder.append(line);
+		}
+		String jsonString = crunchifyBuilder.toString();
+		Map<String, String> userMap = gson.fromJson(jsonString, mapType);
+		String handle = userMap.get("handle");
+		String password = userMap.get("password");
+		String responseString = "{\"status_code\":1}";
+		Map<String, String> myMap = Launcher.dbEngine.follow(handle, password);
+		}
 
+	catch (Exception ex){
+	StringWriter sw = new StringWriter();
+	ex.printStackTrace(new PrintWriter(sw));
+    String exceptionAsString = sw.toString();
+    ex.printStackTrace();
+    return Response.status(500).entity(exceptionAsString).build();
+	}
+	return Response.ok(responseString).header("Access-Control-Allow-Origin", "*").build();
 	}
 
 	// remove someone from your followings list
