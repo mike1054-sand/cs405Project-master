@@ -151,4 +151,35 @@ public class DBEngine {
         return userIdMap;
     } // getBDATE()
 
+public Map<String,String> block(String handle, String password){
+Map<String, String> userIdMap = new HashMap<>();
+PreparedStatement stmt = null;
+try{
+Connection conn = ds.getConnection();
+String queryString = null;
+queryString = "SELECT * FROM Identity WHERE handle = ? AND password = ?";
+stmt = conn.PreparedStatement(queryString);
+stmt.setString(1, handle);
+stmt.setString(2, password);
+
+queryString = "INSERT INTO Block VALUES(?, ?)";
+String username = rs.getString("handle");
+String password = rs.getString("password");
+userIdMap.put("handle", username);
+userIdMap.put("password", password);
+while(rs.next()){
+String idnum = Integer.toString(rs.getInt("idnum"));
+userIdMap.put("idnum", idnum);
+}
+rs.close()
+smt.close();
+conn.close();
+}
+catch(Exception ex){
+	ex.printStackTrace();
+
+}
+return userIdMap;
+}
+	
 } // class DBEngine
