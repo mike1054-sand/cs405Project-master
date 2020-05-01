@@ -152,36 +152,103 @@ public class DBEngine {
     } // getBDATE()
 
 
-public Map<String,String> block(String handle, String password){
-Map<String, String> userIdMap = new HashMap<>();
-PreparedStatement stmt = null;
-try{
-Connection conn = ds.getConnection();
-String queryString = null;
-queryString = "SELECT * FROM Identity WHERE handle = ? AND password = ?";
-stmt = conn.PreparedStatement(queryString);
-stmt.setString(1, handle);
-stmt.setString(2, password);
-queryString = "INSERT INTO Block VALUES(?, ?)";
-String username = rs.getString("handle");
-String password = rs.getString("password");
-userIdMap.put("handle", username);
-userIdMap.put("password", password);
-while(rs.next()){
-String idnum = Integer.toString(rs.getInt("idnum"));
-userIdMap.put("idnum", idnum);
-}
-rs.close()
-smt.close();
-conn.close();
-}
-catch(Exception ex){
-	ex.printStackTrace();
+    public Map<String,String> block(String handle, String password){
+        Map<String, String> userIdMap = new HashMap<>();
+        PreparedStatement stmt = null;
+        try{
+            Connection conn = ds.getConnection();
+            String queryString = null;
+            queryString = "SELECT * FROM Identity WHERE handle = ? AND password = ?";
+            stmt = conn.prepareStatement(queryString);
+            stmt.setString(1, handle);
+            stmt.setString(2, password);
+            stmt.executeQuery(queryString);
+            queryString = "INSERT INTO Block VALUES(?, ?)";
+            ResultSet rs = stmt.executeQuery(queryString);
+            String username = rs.getString("handle");
+            password = rs.getString("password");
+            userIdMap.put("handle", username);
+            userIdMap.put("password", password);
+            while(rs.next()){
+                String idnum = Integer.toString(rs.getInt("idnum"));
+                userIdMap.put("idnum", idnum);
+            }
+            rs.close();
+            stmt.close();
+            conn.close();
+        }
+        catch(Exception ex){
+	        ex.printStackTrace();
 
-}
-return userIdMap;
-}
+        }
+        return userIdMap;
+    }
 
+
+
+    public Map<String,String> unfollow(String handle, String password){
+        Map<String, String> userIdMap = new HashMap<>();
+        PreparedStatement stmt = null;
+        try{
+            Connection conn = ds.getConnection();
+            String queryString = null;
+            queryString = "SELECT * FROM Identity WHERE handle = ? AND password = ?";
+            stmt = conn.prepareStatement(queryString);
+            stmt.setString(1, handle);
+            stmt.setString(2, password);
+            stmt.executeQuery(queryString);
+            queryString = "REMOVE FROM Follows VALUES(?, ?)";
+            ResultSet rs = stmt.executeQuery(queryString);
+            String username = rs.getString("handle");
+            password = rs.getString("password");
+            userIdMap.put("handle", username);
+            userIdMap.put("password", password);
+            while(rs.next()){
+                String idnum = Integer.toString(rs.getInt("idnum"));
+                userIdMap.put("idnum", idnum);
+            }
+            rs.close();
+            stmt.close();
+            conn.close();
+        }
+        catch(Exception ex){
+            ex.printStackTrace();
+
+        }
+        return userIdMap;
+    }
+
+    public Map<String,String> follow(String handle, String password){
+        Map<String, String> userIdMap = new HashMap<>();
+        PreparedStatement stmt = null;
+        try{
+            Connection conn = ds.getConnection();
+            String queryString = null;
+            queryString = "SELECT * FROM Identity WHERE handle = ? AND password = ?";
+            stmt = conn.prepareStatement(queryString);
+            stmt.setString(1, handle);
+            stmt.setString(2, password);
+            stmt.executeQuery(queryString);
+            queryString = "INSERT INTO Follows VALUES(?, ?)";
+            ResultSet rs = stmt.executeQuery(queryString);
+            String username = rs.getString("handle");
+            password = rs.getString("password");
+            userIdMap.put("handle", username);
+            userIdMap.put("password", password);
+            while(rs.next()){
+                String idnum = Integer.toString(rs.getInt("idnum"));
+                userIdMap.put("idnum", idnum);
+            }
+            rs.close();
+            stmt.close();
+            conn.close();
+        }
+        catch(Exception ex){
+            ex.printStackTrace();
+
+        }
+        return userIdMap;
+    }
 
  //   Input: curl -d '{"handle":"@cooldude42", "password":"mysecret!", "fullname":"Angus Mize", "location":"Kentucky", "xmail":"none@nowhere.com", "bdate":"1970-07-01"}'
     public Map<String, String> createuser(String handle, String password, String fullname, String location, String xmail, String bdate, String joined) {

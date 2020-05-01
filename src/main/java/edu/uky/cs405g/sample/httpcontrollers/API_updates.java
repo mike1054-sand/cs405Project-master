@@ -312,8 +312,30 @@ public class API {
 	@GET
 	@Path("/follow")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response follow(){
-
+	public Response follow(InputStream InputData){
+        String responseString = "{\"status_code\":0, , "+"\"error\": \"not currently followed\"}";
+        StringBuilder crunchifyBuilder = new StringBuilder();
+        try {
+            BufferedReader in = new BufferedReader(new InputStreamReader(InputData));
+            String line = null;
+            while ((line = in.readLine()) != null) {
+                crunchifyBuilder.append(line);
+            }
+            String jsonString = crunchifyBuilder.toString();
+            Map<String, String> userMap = gson.fromJson(jsonString, mapType);
+            String handle = userMap.get("handle");
+            String password = userMap.get("password");
+            Map<String, String> myMap = Launcher.dbEngine.follow(handle, password);
+            responseString = "{\"status_code\":1}";
+        }
+        catch (Exception ex){
+            StringWriter sw = new StringWriter();
+            ex.printStackTrace(new PrintWriter(sw));
+            String exceptionAsString = sw.toString();
+            ex.printStackTrace();
+            return Response.status(500).entity(exceptionAsString).build();
+        }
+        return Response.ok(responseString).header("Access-Control-Allow-Origin", "*").build();
 	}
 
 	// remove someone from your followings list
@@ -325,33 +347,32 @@ public class API {
 	// etc.
 	@GET
 	@Path("/unfollow")
-	@Procedures(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
 	public Response unfollow(InputStream InputData){
-	String responseString = "{\"status_code\":0, , "+"\"error\": \"not currently followed\"}";
-				StringBuilder crunchifyBuilder = crunchifyBuilder.toString();
-		try{
-		BufferedReader in new BufferedReader(new InputStreamReader(InputData));
-		String line = null;
-		while ((line=in.readLine()) != null){
-			crunchifyBuilder.append(line);
-		}
-		String jsonString = crunchifyBuilder.toString();
-		Map<String, String> userMap = gson.fromJson(jsonString, mapType);
-		String handle = userMap.get("handle");
-		String password = userMap.get("password");
-		Map<String, String> myMap = Launcher.dbEngine.unfollow(handle, password);
-		String responseString = "{\"status_code\":1}";
+	    String responseString = "{\"status_code\":0, , "+"\"error\": \"not currently followed\"}";
+        StringBuilder crunchifyBuilder = new StringBuilder();
+        try {
+            BufferedReader in = new BufferedReader(new InputStreamReader(InputData));
+            String line = null;
+            while ((line = in.readLine()) != null) {
+                crunchifyBuilder.append(line);
+            }
+		    String jsonString = crunchifyBuilder.toString();
+		    Map<String, String> userMap = gson.fromJson(jsonString, mapType);
+		    String handle = userMap.get("handle");
+		    String password = userMap.get("password");
+		    Map<String, String> myMap = Launcher.dbEngine.unfollow(handle, password);
+		    responseString = "{\"status_code\":1}";
 		}
 		catch (Exception ex){
-	StringWriter sw = new StringWriter();
-	ex.printStackTrace(new PrintWriter(sw));
-    String exceptionAsString = sw.toString();
-    ex.printStackTrace();
-    return Response.status(500).entity(exceptionAsString).build();
-	}
-	return Response.ok(responseString).header("Access-Control-Allow-Origin", "*").build();
-
-	}
+	        StringWriter sw = new StringWriter();
+	        ex.printStackTrace(new PrintWriter(sw));
+            String exceptionAsString = sw.toString();
+            ex.printStackTrace();
+            return Response.status(500).entity(exceptionAsString).build();
+	    }
+	    return Response.ok(responseString).header("Access-Control-Allow-Origin", "*").build();
+    }
 
 	// Block a user
 	// Input: curl -d '{"handle":"@cooldude42", "password":"mysecret!"}' -H "Content-Type: application/json" -X 
@@ -364,29 +385,28 @@ public class API {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response block(InputStream InputData){
 	String responseString = "{\"status_code\":0, , "+"\"error\": \"DNE\"}";
-		StringBuilder crunchifyBuilder = crunchifyBuilder.toString();
-			try{
-		BufferedReader in new BufferedReader(new InputStreamReader(InputData));
-		String line = null;
-		while ((line=in.readLine()) != null){
-			crunchifyBuilder.append(line);
-		}
-		String jsonString = crunchifyBuilder.toString();
-		Map<String, String> userMap = gson.fromJson(jsonString, mapType);
-		String handle = userMap.get("handle");
-		String password = userMap.get("password");
-		Map<String, String> myMap = Launcher.dbEngine.block(handle, password);
-		String responseString = "{\"status_code\":1}";
+        StringBuilder crunchifyBuilder = new StringBuilder();
+        try {
+            BufferedReader in = new BufferedReader(new InputStreamReader(InputData));
+            String line = null;
+            while ((line = in.readLine()) != null) {
+                crunchifyBuilder.append(line);
+            }
+		    String jsonString = crunchifyBuilder.toString();
+		    Map<String, String> userMap = gson.fromJson(jsonString, mapType);
+		    String handle = userMap.get("handle");
+		    String password = userMap.get("password");
+		    Map<String, String> myMap = Launcher.dbEngine.block(handle, password);
+		    responseString = "{\"status_code\":1}";
 		}
 		catch (Exception ex){
-	StringWriter sw = new StringWriter();
-	ex.printStackTrace(new PrintWriter(sw));
-    String exceptionAsString = sw.toString();
-    ex.printStackTrace();
-    return Response.status(500).entity(exceptionAsString).build();
-	}
-	return Response.ok(responseString).header("Access-Control-Allow-Origin", "*").build();
-
+	        StringWriter sw = new StringWriter();
+	        ex.printStackTrace(new PrintWriter(sw));
+            String exceptionAsString = sw.toString();
+            ex.printStackTrace();
+            return Response.status(500).entity(exceptionAsString).build();
+	    }
+	    return Response.ok(responseString).header("Access-Control-Allow-Origin", "*").build();
 	}
 
 	// see all Story/Reprints of people you follow
