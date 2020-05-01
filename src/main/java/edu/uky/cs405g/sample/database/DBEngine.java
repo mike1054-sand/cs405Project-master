@@ -152,7 +152,7 @@ public class DBEngine {
     } // getBDATE()
 
  //   Input: curl -d '{"handle":"@cooldude42", "password":"mysecret!", "fullname":"Angus Mize", "location":"Kentucky", "xmail":"none@nowhere.com", "bdate":"1970-07-01"}'
-    public Map<String, String> createuser(String handle, String password, String fullname, String location, String xmail, String bdate) {
+    public Map<String, String> createuser(String handle, String password, String fullname, String location, String xmail, String bdate, String joined) {
         Map<String, String> userIdMap = new HashMap<>();
 
         PreparedStatement stmt = null;
@@ -161,11 +161,18 @@ public class DBEngine {
             Connection conn = ds.getConnection();
             String queryString = null;
             //queryString to insert into the database
-            queryString = "INSERT INTO Identity VALUES(handle, password, fullname, location, xmail, bdate)";
+            queryString = "INSERT INTO Identity VALUES(?, ?, ?, ?, ?, ?, ?)";
             stmt = conn.prepareStatement(queryString);
+            stmt.setString(1, handle);
+            stmt.setString(2, password);
+            stmt.setString(3, fullname);
+            stmt.setString(4, location);
+            stmt.setString(5, xmail);
+            stmt.setString(6, bdate);
+            stmt.setString(7, joined);
             ResultSet rs = stmt.executeQuery();
             while(rs.next()) {
-                String idnum = rs.getString("idnum");
+                String idnum = Integer.toString(rs.getInt("idnum"));
                 userIdMap.put("idnum", idnum);
             }
             rs.close();
@@ -174,6 +181,45 @@ public class DBEngine {
         }
         catch(Exception ex)
         {
+            ex.printStackTrace();
+        }
+        return userIdMap;
+    }
+
+    public Map<String, String> seeUser(String handle, String password) {
+        Map<String, String> userIdMap = new HashMap<>();
+
+        PreparedStatement stmt = null;
+        try {
+            Connection conn = ds.getConnection();
+            String queryString = null;
+            //query string to get user information from database
+            queryString = "SELECT * from Identity WHERE handle = ? AND password = ?";
+            stmt = conn.prepareStatement(queryString);
+            stmt.setString(1, handle);
+            stmt.setString(2, password);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                String idnum = Integer.toString(rs.getInt("idnum"));
+                String username = rs.getString("handle");
+                String fullname = rs.getString("fullname");
+                String location = rs.getString("location");
+                String xmail = rs.getString("xmail");
+                String bdate = rs.getString("bdate");
+                String joined = rs.getString("joined");
+                userIdMap.put("idnum", idnum);
+                userIdMap.put("handle", username);
+                userIdMap.put("fullname", fullname);
+                userIdMap.put("location", location);
+                userIdMap.put("xmail", xmail);
+                userIdMap.put("bdate", bdate);
+                userIdMap.put("joined", joined);
+            }
+            rs.close();
+            stmt.close();
+            conn.close();
+        }
+        catch(Exception ex) {
             ex.printStackTrace();
         }
         return userIdMap;
