@@ -295,8 +295,31 @@ public class API {
 	// etc.
 	@GET
 	@Path("/unfollow")
-	@Produces(MediaType.APPLICATION_JSON)
-	public Response unfollow(){
+	@Procedures(MediaType.APPLICATION_JSON)
+	public Response unfollow(InputStream InputData){
+	String responseString = "{\"status_code\":0, , "+"\"error\": \"not currently followed\"}";
+				StringBuilder crunchifyBuilder = crunchifyBuilder.toString();
+		try{
+		BufferedReader in new BufferedReader(new InputStreamReader(InputData));
+		String line = null;
+		while ((line=in.readLine()) != null){
+			crunchifyBuilder.append(line);
+		}
+		String jsonString = crunchifyBuilder.toString();
+		Map<String, String> userMap = gson.fromJson(jsonString, mapType);
+		String handle = userMap.get("handle");
+		String password = userMap.get("password");
+		Map<String, String> myMap = Launcher.dbEngine.unfollow(handle, password);
+		String responseString = "{\"status_code\":1}";
+		}
+		catch (Exception ex){
+	StringWriter sw = new StringWriter();
+	ex.printStackTrace(new PrintWriter(sw));
+    String exceptionAsString = sw.toString();
+    ex.printStackTrace();
+    return Response.status(500).entity(exceptionAsString).build();
+	}
+	return Response.ok(responseString).header("Access-Control-Allow-Origin", "*").build();
 
 	}
 
