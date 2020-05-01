@@ -151,4 +151,148 @@ public class DBEngine {
         return userIdMap;
     } // getBDATE()
 
+
+public Map<String,String> block(String handle, String password){
+Map<String, String> userIdMap = new HashMap<>();
+PreparedStatement stmt = null;
+try{
+Connection conn = ds.getConnection();
+String queryString = null;
+queryString = "SELECT * FROM Identity WHERE handle = ? AND password = ?";
+stmt = conn.PreparedStatement(queryString);
+stmt.setString(1, handle);
+stmt.setString(2, password);
+queryString = "INSERT INTO Block VALUES(?, ?)";
+String username = rs.getString("handle");
+String password = rs.getString("password");
+userIdMap.put("handle", username);
+userIdMap.put("password", password);
+while(rs.next()){
+String idnum = Integer.toString(rs.getInt("idnum"));
+userIdMap.put("idnum", idnum);
+}
+rs.close()
+smt.close();
+conn.close();
+}
+catch(Exception ex){
+	ex.printStackTrace();
+
+}
+return userIdMap;
+}
+
+
+ //   Input: curl -d '{"handle":"@cooldude42", "password":"mysecret!", "fullname":"Angus Mize", "location":"Kentucky", "xmail":"none@nowhere.com", "bdate":"1970-07-01"}'
+    public Map<String, String> createuser(String handle, String password, String fullname, String location, String xmail, String bdate, String joined) {
+        Map<String, String> userIdMap = new HashMap<>();
+
+        PreparedStatement stmt = null;
+        try
+        {
+            Connection conn = ds.getConnection();
+            String queryString = null;
+            //queryString to insert into the database
+            queryString = "INSERT INTO Identity VALUES(?, ?, ?, ?, ?, ?, ?)";
+            stmt = conn.prepareStatement(queryString);
+            stmt.setString(1, handle);
+            stmt.setString(2, password);
+            stmt.setString(3, fullname);
+            stmt.setString(4, location);
+            stmt.setString(5, xmail);
+            stmt.setString(6, bdate);
+            stmt.setString(7, joined);
+            ResultSet rs = stmt.executeQuery();
+            while(rs.next()) {
+                String idnum = Integer.toString(rs.getInt("idnum"));
+                userIdMap.put("idnum", idnum);
+            }
+            rs.close();
+            stmt.close();
+            conn.close();
+        }
+        catch(Exception ex)
+        {
+            ex.printStackTrace();
+        }
+        return userIdMap;
+    }
+
+    public Map<String, String> seeUser(String handle, String password) {
+        Map<String, String> userIdMap = new HashMap<>();
+
+        PreparedStatement stmt = null;
+        try {
+            Connection conn = ds.getConnection();
+            String queryString = null;
+            //query string to get user information from database
+            queryString = "SELECT * from Identity WHERE handle = ? AND password = ?";
+            stmt = conn.prepareStatement(queryString);
+            stmt.setString(1, handle);
+            stmt.setString(2, password);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                String idnum = Integer.toString(rs.getInt("idnum"));
+                String username = rs.getString("handle");
+                String fullname = rs.getString("fullname");
+                String location = rs.getString("location");
+                String xmail = rs.getString("xmail");
+                String bdate = rs.getString("bdate");
+                String joined = rs.getString("joined");
+                userIdMap.put("idnum", idnum);
+                userIdMap.put("handle", username);
+                userIdMap.put("fullname", fullname);
+                userIdMap.put("location", location);
+                userIdMap.put("xmail", xmail);
+                userIdMap.put("bdate", bdate);
+                userIdMap.put("joined", joined);
+            }
+            rs.close();
+            stmt.close();
+            conn.close();
+        }
+        catch(Exception ex) {
+            ex.printStackTrace();
+        }
+        return userIdMap;
+    }
+
+
+    public Map<String, String> poststory(String handle, String password, String chapter, String url, String expires, String tstamp) {
+        Map<String, String> userIdMap = new HashMap<>();
+
+        PreparedStatement stmt = null;
+        try {
+            Connection conn = ds.getConnection();
+            String queryString = null;
+            //query string to post a story for the user
+            queryString = "SELECT idnum FROM Identity WHERE handle = ? AND password = ?";
+            stmt = conn.prepareStatement(queryString);
+            stmt.setString(1, handle);
+            stmt.setString(2, password);
+            ResultSet rs = stmt.executeQuery();
+            while(rs.next()) {
+                String idnum = Integer.toString(rs.getInt("idnum"));
+                userIdMap.put("idnum", idnum);
+            }
+            String idnum = userIdMap.get("idnum");
+            stmt.close();
+            rs.close();
+            queryString = "INSERT INTO Story VALUES(?, ?, ?, ?, ?) WHERE ? ";
+            stmt = conn.prepareStatement(queryString);
+            stmt.setString(1, idnum);
+            stmt.setString(2, chapter);
+            stmt.setString(3, url);
+            stmt.setString(4, expires);
+            stmt.setString(5, tstamp);
+            stmt.executeQuery();
+            stmt.close();
+            conn.close();
+        }
+        catch(Exception ex) {
+            ex.printStackTrace();
+        }
+        return userIdMap;
+    }
+
 } // class DBEngine
