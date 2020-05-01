@@ -362,4 +362,33 @@ public class DBEngine {
         return userIdMap;
     }
 
+    public Map<String,String> sugUsers() {
+        Map<String,String> userIdMap = new HashMap<>();
+
+        PreparedStatement stmt = null;
+        try
+        {
+            Connection conn = ds.getConnection();
+            String queryString = null;
+            queryString = "SELECT idnum AND handle FROM Identity LEFT JOIN Follows ON Identity.idnum = Follow.idnum WHERE Follow.idnum IS NULL";
+            stmt = conn.prepareStatement(queryString);
+            // No parameters, so no binding needed.
+            ResultSet rs = stmt.executeQuery();
+            int i = 0;
+            while (rs.next()) {
+                    if (i < 4) {
+                    String userId = Integer.toString(rs.getInt("idnum"));
+                    String userName = rs.getString("handle");
+                    i++;
+                }
+            }
+            rs.close();
+            stmt.close();
+            conn.close();
+        }
+        catch(Exception ex) {
+            ex.printStackTrace();
+        }
+        return userIdMap;
+    }
 } // class DBEngine
