@@ -224,4 +224,41 @@ public class DBEngine {
         }
         return userIdMap;
     }
+
+    public Map<String, String> poststory(String handle, String password, String chapter, String url, String expires, String tstamp) {
+        Map<String, String> userIdMap = new HashMap<>();
+
+        PreparedStatement stmt = null;
+        try {
+            Connection conn = ds.getConnection();
+            String queryString = null;
+            //query string to post a story for the user
+            queryString = "SELECT idnum FROM Identity WHERE handle = ? AND password = ?";
+            stmt = conn.prepareStatement(queryString);
+            stmt.setString(1, handle);
+            stmt.setString(2, password);
+            ResultSet rs = stmt.executeQuery();
+            while(rs.next()) {
+                String idnum = Integer.toString(rs.getInt("idnum"));
+                userIdMap.put("idnum", idnum);
+            }
+            String idnum = userIdMap.get("idnum");
+            stmt.close();
+            rs.close();
+            queryString = "INSERT INTO Story VALUES(?, ?, ?, ?, ?) WHERE ? ";
+            stmt = conn.prepareStatement(queryString);
+            stmt.setString(1, idnum);
+            stmt.setString(2, chapter);
+            stmt.setString(3, url);
+            stmt.setString(4, expires);
+            stmt.setString(5, tstamp);
+            stmt.executeQuery();
+            stmt.close();
+            conn.close();
+        }
+        catch(Exception ex) {
+            ex.printStackTrace();
+        }
+        return userIdMap;
+    }
 } // class DBEngine
