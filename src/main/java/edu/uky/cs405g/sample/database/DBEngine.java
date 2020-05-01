@@ -151,4 +151,31 @@ public class DBEngine {
         return userIdMap;
     } // getBDATE()
 
+ //   Input: curl -d '{"handle":"@cooldude42", "password":"mysecret!", "fullname":"Angus Mize", "location":"Kentucky", "xmail":"none@nowhere.com", "bdate":"1970-07-01"}'
+    public Map<String, String> createuser(String handle, String password, String fullname, String location, String xmail, String bdate) {
+        Map<String, String> userIdMap = new HashMap<>();
+
+        PreparedStatement stmt = null;
+        try
+        {
+            Connection conn = ds.getConnection();
+            String queryString = null;
+            //queryString to insert into the database
+            queryString = "INSERT INTO Identity VALUES(handle, password, fullname, location, xmail, bdate)";
+            stmt = conn.prepareStatement(queryString);
+            ResultSet rs = stmt.executeQuery();
+            while(rs.next()) {
+                String idnum = rs.getString("idnum");
+                userIdMap.put("idnum", idnum);
+            }
+            rs.close();
+            stmt.close();
+            conn.close();
+        }
+        catch(Exception ex)
+        {
+            ex.printStackTrace();
+        }
+        return userIdMap;
+    }
 } // class DBEngine
