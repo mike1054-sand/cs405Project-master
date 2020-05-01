@@ -145,8 +145,36 @@ public class API {
 	@GET
 	@Path("/createuser")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response createuser(){
+	public Response createuser(InputStream inputData){
+        String responseString = "{\"status_code\":0}";
+        StringBuilder crunchifyBuilder = new StringBuilder();
+        try {
+            BufferedReader in = new BufferedReader(new InputStreamReader(inputData));
+            String line = null;
+            while ((line=in.readLine()) != null) {
+                crunchifyBuilder.append(line);
+            }
+            String jsonString = crunchifyBuilder.toString();
 
+            Map<String, String> userMap = gson.fromJson(jsonString, mapType);
+            String handle = userMap.get("handle");
+            String password = userMap.get("password");
+            String fullname = userMap.get("fullname");
+            String location = userMap.get("location");
+            String xmail = userMap.get("xmail");
+            String bdate = userMap.get("bdate");
+            Map<String, String> myMap = Launcher.dbEngine.createuser(handle, password, fullname, location, xmail, bdate);
+            String idnum = myMap.get("idnum");
+            responseString = "{\"status\":\""+idnum+"\"}";
+        } catch (Exception ex) {
+            StringWriter sw = new StringWriter();
+            ex.printStackTrace(new PrintWriter(sw));
+            String exceptionAsString = sw.toString();
+            ex.printStackTrace();
+            return Response.status(500).entity(exceptionAsString).build();
+        }
+        return Response.ok(responseString)
+                .header("Access-Control-Allow-Origin", "*").build();
 	}
         
 		
