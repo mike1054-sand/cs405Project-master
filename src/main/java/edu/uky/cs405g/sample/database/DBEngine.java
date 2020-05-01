@@ -152,8 +152,7 @@ public class DBEngine {
     } // getBDATE()
 
 
-	
-	public Map<String,String> unfollow(String handle, String password){
+public Map<String,String> block(String handle, String password){
 Map<String, String> userIdMap = new HashMap<>();
 PreparedStatement stmt = null;
 try{
@@ -163,8 +162,7 @@ queryString = "SELECT * FROM Identity WHERE handle = ? AND password = ?";
 stmt = conn.PreparedStatement(queryString);
 stmt.setString(1, handle);
 stmt.setString(2, password);
-
-queryString = "REMOVE Follows VALUES(?, ?)";
+queryString = "INSERT INTO Block VALUES(?, ?)";
 String username = rs.getString("handle");
 String password = rs.getString("password");
 userIdMap.put("handle", username);
@@ -183,6 +181,7 @@ catch(Exception ex){
 }
 return userIdMap;
 }
+
 
  //   Input: curl -d '{"handle":"@cooldude42", "password":"mysecret!", "fullname":"Angus Mize", "location":"Kentucky", "xmail":"none@nowhere.com", "bdate":"1970-07-01"}'
     public Map<String, String> createuser(String handle, String password, String fullname, String location, String xmail, String bdate, String joined) {
@@ -257,4 +256,5 @@ return userIdMap;
         }
         return userIdMap;
     }
+
 } // class DBEngine
