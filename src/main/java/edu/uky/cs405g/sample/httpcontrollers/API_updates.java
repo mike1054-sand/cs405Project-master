@@ -142,11 +142,41 @@ public class API {
 	// Output: {"status":"4"} // positive number is the Identity.idnum created.
 	// Output: {"status":"-2", "error":"SQL Constraint Exception"}. [EDIT 04/14]
 // etc.
-	@Get
+	@GET
 	@Path("/createuser")
-	@Procedures(MediaType.APPLICATION_JSON)
-	public Response createuser(){
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response createuser(InputStream inputData){
+        String responseString = "{\"status_code\":0}";
+        StringBuilder crunchifyBuilder = new StringBuilder();
+        try {
+            BufferedReader in = new BufferedReader(new InputStreamReader(inputData));
+            String line = null;
+            while ((line=in.readLine()) != null) {
+                crunchifyBuilder.append(line);
+            }
+            String jsonString = crunchifyBuilder.toString();
 
+            Map<String, String> userMap = gson.fromJson(jsonString, mapType);
+            String handle = userMap.get("handle");
+            String password = userMap.get("password");
+            String fullname = userMap.get("fullname");
+            String location = userMap.get("location");
+            String xmail = userMap.get("xmail");
+            String bdate = userMap.get("bdate");
+            java.time.LocalDate now = java.time.LocalDate.now();
+            String joined = now.toString();
+            Map<String, String> myMap = Launcher.dbEngine.createuser(handle, password, fullname, location, xmail, bdate, joined);
+            String idnum = myMap.get("idnum");
+            responseString = "{\"status\":\""+idnum+"\"}";
+        } catch (Exception ex) {
+            StringWriter sw = new StringWriter();
+            ex.printStackTrace(new PrintWriter(sw));
+            String exceptionAsString = sw.toString();
+            ex.printStackTrace();
+            return Response.status(500).entity(exceptionAsString).build();
+        }
+        return Response.ok(responseString)
+                .header("Access-Control-Allow-Origin", "*").build();
 	}
         
 		
@@ -156,11 +186,40 @@ public class API {
     // 2 = Identity.idnum
     // Output: {"status":"1", "handle":"@carlos", "fullname":"Carlos Mize", "location":"Kentucky", "email":carlos@notgmail.com", "bdate":"1970-01-26","joined":"2020-04-01"}
     // Output: {}. // no match found, could be blocked, user doesn't know.
-	@Get
+	@GET
 	@Path("/seeuser")
-	@Procedures(MediaType.APPLICATION_JSON)
-	public Response seeuser(){
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response seeuser(InputStream InputData) {
+        String responseString = "{\"status_code\":0}";
+        StringBuilder crunchifyBuilder = new StringBuilder();
+        try {
+            BufferedReader in = new BufferedReader(new InputStreamReader(InputData));
+            String line = null;
+            while ((line = in.readLine()) != null) {
+                crunchifyBuilder.append(line);
+            }
+            String jsonString = crunchifyBuilder.toString();
 
+            Map<String, String> userMap = gson.fromJson(jsonString, mapType);
+            String handle = userMap.get("handle");
+            String password = userMap.get("password");
+            Map<String, String> myMap = Launcher.dbEngine.seeUser(handle, password);
+            handle = myMap.get("handle");
+            String fullname = myMap.get("fullname");
+            String location = myMap.get("location");
+            String xmail = myMap.get("xmail");
+            String bdate = myMap.get("bdate");
+            String joined = myMap.get("joined");
+            responseString = "{\"status\":\"1\", \"handle\":\"" + handle + ", \"fullname\":\"" + fullname + ", \"location\":\"" + location + "\", \"email\":\"" + xmail + "\", \"bdate\":\"" + bdate + "\", \"joined\":\"" + joined + "\"}";
+        } catch (Exception ex) {
+            StringWriter sw = new StringWriter();
+            ex.printStackTrace(new PrintWriter(sw));
+            String exceptionAsString = sw.toString();
+            ex.printStackTrace();
+            return Response.status(500).entity(exceptionAsString).build();
+        }
+        return Response.ok(responseString)
+                .header("Access-Control-Allow-Origin", "*").build();
 	}
 
 	// Query should be give idnum, handle of at most 4 (Hint: LIMIT 4)
@@ -172,21 +231,64 @@ public class API {
 	// Output, status > 0 is the number of suggested people returned
 	// Output: {"status":"3", "idnums":"1,2,4", "handles":"@paul,@carlos","@fake"}
 	// Output: {"status":"0", "error":"no suggestions"}
-	@Get
+	@GET
 	@Path("/suggestions")
-	@Procedures(MediaType.APPLICATION_JSON)
-	public Response suggestions(){
-
-	}
+	@Produces(MediaType.APPLICATION_JSON)
+    public Response suggestions(){
+        String responseString = "{\"status_code\":0, "+"\"error\": \"no suggestions\"}";
+        try{
+            Map<String, String> teamMap = Launcher.dbEngine.sugUsers();
+            Launcher.gson.toJson(teamMap);
+            responseString = "{\"status_code\":\"3\", \"idnums\":\"124\", \"handles\":\"paul carlose fake\"}";
+        }
+        catch (Exception ex){
+            StringWriter sw = new StringWriter();
+            ex.printStackTrace(new PrintWriter(sw));
+            String exceptionAsString = sw.toString();
+            ex.printStackTrace();
+            return Response.status(500).entity(exceptionAsString).build();
+        }
+        return Response.ok(responseString).header("Access-Control-Allow-Origin", "*").build();
+    }//suggestions
 
 	// Input: curl -d '{"handle":"@cooldude42", "password":"mysecret!", "chapter":"I ate at Mario's!", "url":"http://imagesite.dne/marios.jpg"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/poststory (Links to an external site.)
 	// Output: {"status":"1"}
 	// Output: {"status":"0", "error":"invalid expires date"}
-	@Get
+	@GET
 	@Path("/poststory")
-	@Procedures(MediaType.APPLICATION_JSON)
-	public Response poststory(){
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response poststory(InputStream InputData){
+        String responseString = "{\"status_code\":\"0\"}";
+        StringBuilder crunchifyBuilder = new StringBuilder();
+        try {
+            BufferedReader in = new BufferedReader(new InputStreamReader(InputData));
+            String line = null;
+            while ((line = in.readLine()) != null) {
+                crunchifyBuilder.append(line);
+            }
+            String jsonString = crunchifyBuilder.toString();
 
+            Map<String, String> userMap = gson.fromJson(jsonString, mapType);
+            String handle = userMap.get("handle");
+            String password = userMap.get("password");
+            String chapter = userMap.get("chapter");
+            String url = userMap.get("url");
+            java.time.LocalDateTime now = java.time.LocalDateTime.now();
+            String timestamp = now.toString();
+            java.time.LocalDateTime tomorrow = java.time.LocalDateTime.now();
+            tomorrow = tomorrow.plusHours(24);
+            String expired = tomorrow.toString();
+            Map<String, String> myMap = Launcher.dbEngine.poststory(handle, password, chapter, url, expired, timestamp);
+            responseString = "{\"status\":\"1\"}";
+        } catch (Exception ex) {
+            StringWriter sw = new StringWriter();
+            ex.printStackTrace(new PrintWriter(sw));
+            String exceptionAsString = sw.toString();
+            ex.printStackTrace();
+            return Response.status(500).entity(exceptionAsString).build();
+        }
+        return Response.ok(responseString)
+                .header("Access-Control-Allow-Origin", "*").build();
 	}
 
 
@@ -206,11 +308,36 @@ public class API {
 	// Output: {"status":"0", "error":"blocked"}
 	// Output: {"status":"0", "error":"story not found"}
 	// etc.
-	@Get
+	@GET
 	@Path("/reprint")
-	@Procedures(MediaType.APPLICATION_JSON)
-	public Response reprint(){
-
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response reprint(InputStream InputData){
+	String responseString = "{\"status_code\":0}";
+        StringBuilder crunchifyBuilder = new StringBuilder();
+        try {
+            BufferedReader in = new BufferedReader(new InputStreamReader(InputData));
+            String line = null;
+            while ((line = in.readLine()) != null) {
+                crunchifyBuilder.append(line);
+            }
+			String jsonString = crunchifyBuilder.toString();
+			Map<String, String> userMap = gson.fromJson(jsonString, mapType);
+			String handle = userMap.get("handle");
+			String password = userMap.get("password");
+			String likeit = userMap.get("likeit");
+			boolean like = Boolean.parseBoolean(likeit);
+            java.time.LocalDateTime now = java.time.LocalDateTime.now();
+            String timestamp = now.toString();
+        }
+        catch (Exception ex) {
+	        StringWriter sw = new StringWriter();
+	        ex.printStackTrace(new PrintWriter(sw));
+            String exceptionAsString = sw.toString();
+            ex.printStackTrace();
+            return Response.status(500).entity(exceptionAsString).build();
+	    }
+	    return Response.ok(responseString)
+                .header("Access-Control-Allow-Origin", "*").build();
 	}
 
 	 // add someone to your followings list
@@ -220,11 +347,33 @@ public class API {
 	// Output: {"status":"0", "error":"blocked"}
 	// DNE
 	// etc.
-	@Get
+	@GET
 	@Path("/follow")
-	@Procedures(MediaType.APPLICATION_JSON)
-	public Response follow(){
-
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response follow(InputStream InputData){
+        String responseString = "{\"status_code\":0, , "+"\"error\": \"not currently followed\"}";
+        StringBuilder crunchifyBuilder = new StringBuilder();
+        try {
+            BufferedReader in = new BufferedReader(new InputStreamReader(InputData));
+            String line = null;
+            while ((line = in.readLine()) != null) {
+                crunchifyBuilder.append(line);
+            }
+            String jsonString = crunchifyBuilder.toString();
+            Map<String, String> userMap = gson.fromJson(jsonString, mapType);
+            String handle = userMap.get("handle");
+            String password = userMap.get("password");
+            Map<String, String> myMap = Launcher.dbEngine.follow(handle, password);
+            responseString = "{\"status_code\":1}";
+        }
+        catch (Exception ex){
+            StringWriter sw = new StringWriter();
+            ex.printStackTrace(new PrintWriter(sw));
+            String exceptionAsString = sw.toString();
+            ex.printStackTrace();
+            return Response.status(500).entity(exceptionAsString).build();
+        }
+        return Response.ok(responseString).header("Access-Control-Allow-Origin", "*").build();
 	}
 
 	// remove someone from your followings list
@@ -234,12 +383,34 @@ public class API {
 	// Output: {"status":"1"}
 	// Output: {"status":"0", "error":"not currently followed"}
 	// etc.
-	@Get
+	@GET
 	@Path("/unfollow")
-	@Procedures(MediaType.APPLICATION_JSON)
-	public Response unfollow(){
-
-	}
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response unfollow(InputStream InputData){
+	    String responseString = "{\"status_code\":0, , "+"\"error\": \"not currently followed\"}";
+        StringBuilder crunchifyBuilder = new StringBuilder();
+        try {
+            BufferedReader in = new BufferedReader(new InputStreamReader(InputData));
+            String line = null;
+            while ((line = in.readLine()) != null) {
+                crunchifyBuilder.append(line);
+            }
+		    String jsonString = crunchifyBuilder.toString();
+		    Map<String, String> userMap = gson.fromJson(jsonString, mapType);
+		    String handle = userMap.get("handle");
+		    String password = userMap.get("password");
+		    Map<String, String> myMap = Launcher.dbEngine.unfollow(handle, password);
+		    responseString = "{\"status_code\":1}";
+		}
+		catch (Exception ex){
+	        StringWriter sw = new StringWriter();
+	        ex.printStackTrace(new PrintWriter(sw));
+            String exceptionAsString = sw.toString();
+            ex.printStackTrace();
+            return Response.status(500).entity(exceptionAsString).build();
+	    }
+	    return Response.ok(responseString).header("Access-Control-Allow-Origin", "*").build();
+    }
 
 	// Block a user
 	// Input: curl -d '{"handle":"@cooldude42", "password":"mysecret!"}' -H "Content-Type: application/json" -X 
@@ -247,11 +418,33 @@ public class API {
 	// 2 = Identity.idnum
 	// Output: {"status":"1"}
 	// Output: {"status":"0", "error":"DNE"}
-	@Get
+	@GET
 	@Path("/block")
-	@Procedures(MediaType.APPLICATION_JSON)
-	public Response block(){
-
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response block(InputStream InputData){
+	String responseString = "{\"status_code\":0, , "+"\"error\": \"DNE\"}";
+        StringBuilder crunchifyBuilder = new StringBuilder();
+        try {
+            BufferedReader in = new BufferedReader(new InputStreamReader(InputData));
+            String line = null;
+            while ((line = in.readLine()) != null) {
+                crunchifyBuilder.append(line);
+            }
+		    String jsonString = crunchifyBuilder.toString();
+		    Map<String, String> userMap = gson.fromJson(jsonString, mapType);
+		    String handle = userMap.get("handle");
+		    String password = userMap.get("password");
+		    Map<String, String> myMap = Launcher.dbEngine.block(handle, password);
+		    responseString = "{\"status_code\":1}";
+		}
+		catch (Exception ex){
+	        StringWriter sw = new StringWriter();
+	        ex.printStackTrace(new PrintWriter(sw));
+            String exceptionAsString = sw.toString();
+            ex.printStackTrace();
+            return Response.status(500).entity(exceptionAsString).build();
+	    }
+	    return Response.ok(responseString).header("Access-Control-Allow-Origin", "*").build();
 	}
 
 	// see all Story/Reprints of people you follow
@@ -277,9 +470,9 @@ public class API {
 	// Output: {"0":"{\"type\":\"story\",\"author\":\"@cooldude44\",\"sidnum\":\"14\",\"chapter\":\"Just some set math, SQL is super fun!\",\"posted\":\"2020-04-16 15:37:48\"}","1":"{\"type\":\"reprint\",\"author\":\"@cooldude44\",\"sidnum\":\"15\",\"chapter\":\"JSON objects are fun and useful!\",\"posted\":\"2020-04-15 10:37:44\"}","status":"2"}
 	// Output: {"status":"0"}
 	// etc.
-	@Get
+	@GET
 	@Path("/timeline")
-	@Procedures(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
 	public Response timeline(){
 
 	}
