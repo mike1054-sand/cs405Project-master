@@ -362,6 +362,35 @@ public class DBEngine {
         return userIdMap;
     }
 
+    public Map<String, String> reprint(String handle, String password, Boolean like, String tstamp) {
+        Map<String, String> userIdMap = new HashMap<>();
+
+        PreparedStatement stmt = null;
+        try {
+            Connection conn = ds.getConnection();
+            String queryString = null;
+            //query string to post a story for the user
+            queryString = "INSERT INTO Reprint VALUES(Identity.idnum, Story.idnum, ?, ? WHERE Identity.handle=?";
+            stmt = conn.prepareStatement(queryString);
+            stmt.setBoolean(1, like);
+            stmt.setString(2, tstamp);
+            stmt.setString(3, handle);
+            ResultSet rs = stmt.executeQuery();
+            while(rs.next()) {
+                String idnum = Integer.toString(rs.getInt("idnum"));
+                userIdMap.put("idnum", idnum);
+            }
+            String idnum = userIdMap.get("idnum");
+            stmt.executeQuery();
+            stmt.close();
+            conn.close();
+        }
+        catch(Exception ex) {
+            ex.printStackTrace();
+        }
+        return userIdMap;
+    }
+
     public Map<String,String> sugUsers() {
         Map<String,String> userIdMap = new HashMap<>();
 
